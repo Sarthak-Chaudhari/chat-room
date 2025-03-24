@@ -161,11 +161,24 @@
 
 
     
-    function shareRoomLink() {
-            const roomLink = `${window.location.origin}/room.html?room=${room}`;
-            navigator.clipboard.writeText(roomLink);
-            alert(`✅ Room link copied! Share this link: ${roomLink}`);
-        }
+    function getRoomId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let roomId = urlParams.get("room"); // Extract from URL
+    if (!roomId) {
+        roomId = `room_${Math.floor(Math.random() * 10000)}`; // Generate a new one if missing
+    }
+    return roomId;
+}
+
+function shareRoomLink() {
+    const roomId = getRoomId(); // Get room ID dynamically
+    const roomLink = `${window.location.origin}/room.html?room=${roomId}`;
+    
+    navigator.clipboard.writeText(roomLink)
+        .then(() => alert(`✅ Room link copied! Share this link: ${roomLink}`))
+        .catch((err) => console.error("Error copying link:", err));
+}
+
 </script>
 
 
