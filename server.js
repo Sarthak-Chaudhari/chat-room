@@ -45,31 +45,22 @@ io.on("connection", (socket) => {
 
     // User disconnects
        // User disconnects
-socket.on("disconnect", () => {
-    const user = users[socket.id]; 
-    if (user) {
-        const { room, username } = user;
-        delete users[socket.id]; // Remove user from the users list
-
-        // Emit updated user list and count only for the affected room
-        const usersInRoom = Object.values(users).filter(u => u.room === room);
-        io.to(room).emit("userLeft", { username, count: usersInRoom.length });
-        console.log(`${username} left ${room}`);
-    }
-});
-
-// User manually leaves room
-socket.on("leaveRoom", ({ room, username }) => {
-    if (users[socket.id]) {
-        delete users[socket.id]; // Remove user from the users list
-
-        // Emit updated user list and count only for the affected room
-        const usersInRoom = Object.values(users).filter(u => u.room === room);
-        io.to(room).emit("userLeft", { username, count: usersInRoom.length });
-        console.log(`${username} left ${room}`);
-    }
-    socket.leave(room); // Ensure the user leaves the room
-});
+    socket.on("disconnect", () => {
+        const user = users[socket.id];
+        if (user) {
+            io.to(user.room).emit("userLeft", { username: user.username, count: Object.keys(users).length - 1 });
+            console.log(`${user.username} left ${user.room}`);
+            delete users[socket.id];
+        }
+    });
+    socket.on("leaveRoom", ({ room, username }) => {
+        if (users[socket.id]) {
+            io.to(room).emit("userLeft", { username, count: Object.keys(users).length - 1 });
+            console.log(`${username} left ${room}`);
+            delete users[socket.id];
+        }
+        socket.leave(room); // Remove the user from the room
+    });
 
     
 });
